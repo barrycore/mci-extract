@@ -1,0 +1,10 @@
+{
+  "input_dir": "C:\\Users\\ELITE TECH\\Desktop\\extractor",
+  "output_dir": "C:\\Users\\ELITE TECH\\Desktop\\extractor\\test_output",
+  "format": "both",
+  "source_format": "ascii",
+  "no_blocking": false,
+  "verbose": true,
+  "debug": false,
+  "config_file": "mideu.yml"
+}
