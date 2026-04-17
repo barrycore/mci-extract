@@ -113,15 +113,20 @@ def _get_length_size(field_type: str) -> int:
 
 
 def _to_python_type(data, python_type: str):
+    text = data if isinstance(data, str) else data.decode("latin-1")
+
     if python_type == "int":
-        return int(data)
-    if python_type in ("long", "decimal"):
-        return int(data)          # Python 3 has no long; decimal kept as int
+        return int(text)
+
+    if python_type == "long":
+        return int(text)   
+
+    if python_type == "decimal":
+        return decimal.Decimal(text)
+
     if python_type == "datetime":
-        return datetime.datetime.strptime(
-            data if isinstance(data, str) else data.decode("latin-1"),
-            "%y%m%d%H%M%S",
-        )
+        return datetime.datetime.strptime(text, "%y%m%d%H%M%S")
+
     return data
 
 
@@ -274,5 +279,9 @@ def parse_record(message: bytes, bit_config: dict, source_fmt: str = "ascii") ->
         )
         out.update(values)
         ptr += consumed
+        if ptr != len(msg_data):
+            raise Exception(
+            f"Message data not correct length. Bitmap indicates len={ptr}, message is len={len(msg_data)}"
+        )
 
     return out
