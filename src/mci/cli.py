@@ -75,6 +75,22 @@ def resolve_mideu_config(filename: str) -> Path:
 
     raise FileNotFoundError(f"{filename} not found in any expected location.")
 
+
+# def resolve_mideu_config(filename: str) -> Path:
+#     """
+#     Simple resolver for local testing:
+#     Looks for the config file in the same directory as this script.
+#     """
+#     base_dir = Path(__file__).resolve().parent
+#     config_path = base_dir / filename
+
+#     if config_path.is_file():
+#         return config_path
+
+#     raise FileNotFoundError(
+#         f"{filename} not found in script directory: {base_dir}"
+#     )
+
 def resolve_config_path(config: str | None) -> Path:
     """
     Resolve config.json in this order:

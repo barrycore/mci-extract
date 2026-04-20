@@ -1,6 +1,6 @@
 {
-  "input_dir": "C:\\Users\\ELITE TECH\\Desktop\\extractor",
-  "output_dir": "C:\\Users\\ELITE TECH\\Desktop\\extractor\\test_output",
+  "input_dir": "/home/cy63r_4lph4/Desktop",
+  "output_dir": "/home/cy63r_4lph4/Desktop/test_output",
   "format": "both",
   "source_format": "ascii",
   "no_blocking": false,

@@ -53,14 +53,16 @@ def _get_bitmap_list(binary_bitmap: bytes) -> list:
 # ---------------------------------------------------------------------------
 
 def unblock(data: bytes) -> list[bytes]:
-    """Unpack 1014-byte blocked data into a list of VBS records."""
     raw_blocks = []
     ptr = 0
     warned = False
 
-    while ptr + 1014 <= len(data):
+    while ptr <= len(data):
         block = data[ptr: ptr + 1012]
         eob = data[ptr + 1012: ptr + 1014]
+
+        raw_blocks.append(block)
+
         if not warned and eob not in (b"", b"\x40\x40"):
             LOGGER.warning(
                 "Unusual EOB marker %r — file may not be 1014-blocked. "
@@ -68,7 +70,7 @@ def unblock(data: bytes) -> list[bytes]:
                 eob,
             )
             warned = True
-        raw_blocks.append(block)
+
         ptr += 1014
 
     return vbs_unpack(b"".join(raw_blocks))
@@ -241,14 +243,6 @@ def _process_element(bit: int, cfg: dict, data: bytes, source_fmt: str) -> tuple
 # ---------------------------------------------------------------------------
 
 def parse_record(message: bytes, bit_config: dict, source_fmt: str = "ascii") -> dict:
-    """
-    Parse a single ISO8583-style record into a flat dictionary.
-
-    :param message:     Raw record bytes (MTI 4B + bitmap 16B + data).
-    :param bit_config:  Field definitions loaded from mideu.yml.
-    :param source_fmt:  'ascii' or 'ebcdic'.
-    :returns:           Dict with keys MTI, DE2 … DE127, PDS*, TAG*, etc.
-    """
     if len(message) < 20:
         LOGGER.debug("Record too short (%d bytes), skipping.", len(message))
         return {}
@@ -274,14 +268,16 @@ def parse_record(message: bytes, bit_config: dict, source_fmt: str = "ascii") ->
         if bit not in bit_config:
             LOGGER.warning("No config for bit %d — skipping rest of record.", bit)
             break
+
         values, consumed = _process_element(
             bit, bit_config[bit], msg_data[ptr:], source_fmt
         )
         out.update(values)
         ptr += consumed
-        if ptr != len(msg_data):
-            raise Exception(
-            f"Message data not correct length. Bitmap indicates len={ptr}, message is len={len(msg_data)}"
+
+    if ptr != len(msg_data):
+        raise Exception(
+            f"Message data not correct length. Parsed len={ptr}, actual message data len={len(msg_data)}"
         )
 
     return out
