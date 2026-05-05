@@ -217,7 +217,7 @@ def _process_element(bit: int, cfg: dict, data: bytes, source_fmt: str) -> tuple
         field_data = _eb2asc(field_data)
 
     # Type conversion
-    python_type = cfg.get("python_field_type", "")
+    python_type = cfg.get("python_field_type") or cfg.get("field_python_type", "")
     if python_type and processor != "ICC":
         field_data = _to_python_type(field_data, python_type)
     elif processor != "ICC" and isinstance(field_data, bytes):

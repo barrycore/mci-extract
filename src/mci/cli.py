@@ -44,52 +44,52 @@ def load_yaml(path: Path) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def resolve_mideu_config(filename: str) -> Path:
-    """
-    Resolve mideu.yml in ALL environments:
-    1. Explicit path
-    2. EXE bundled (_MEIPASS)
-    3. Current working directory
-    4. Home directory
-    """
-
-    # 1. Direct path
-    p = Path(filename)
-    if p.is_file():
-        return p.resolve()
-
-    # 2. PyInstaller bundled path
-    bundled_path = resource_path(f"mci/{filename}")
-    if bundled_path.is_file():
-        return bundled_path.resolve()
-
-    # 3. Current working directory
-    cwd_path = Path.cwd() / filename
-    if cwd_path.is_file():
-        return cwd_path.resolve()
-
-    # 4. Home directory
-    home_path = Path.home() / filename
-    if home_path.is_file():
-        return home_path.resolve()
-
-    raise FileNotFoundError(f"{filename} not found in any expected location.")
-
-
 # def resolve_mideu_config(filename: str) -> Path:
 #     """
-#     Simple resolver for local testing:
-#     Looks for the config file in the same directory as this script.
+#     Resolve mideu.yml in ALL environments:
+#     1. Explicit path
+#     2. EXE bundled (_MEIPASS)
+#     3. Current working directory
+#     4. Home directory
 #     """
-#     base_dir = Path(__file__).resolve().parent
-#     config_path = base_dir / filename
 
-#     if config_path.is_file():
-#         return config_path
+#     # 1. Direct path
+#     p = Path(filename)
+#     if p.is_file():
+#         return p.resolve()
 
-#     raise FileNotFoundError(
-#         f"{filename} not found in script directory: {base_dir}"
-#     )
+#     # 2. PyInstaller bundled path
+#     bundled_path = resource_path(f"mci/{filename}")
+#     if bundled_path.is_file():
+#         return bundled_path.resolve()
+
+#     # 3. Current working directory
+#     cwd_path = Path.cwd() / filename
+#     if cwd_path.is_file():
+#         return cwd_path.resolve()
+
+#     # 4. Home directory
+#     home_path = Path.home() / filename
+#     if home_path.is_file():
+#         return home_path.resolve()
+
+#     raise FileNotFoundError(f"{filename} not found in any expected location.")
+
+
+def resolve_mideu_config(filename: str) -> Path:
+    """
+    Simple resolver for local testing:
+    Looks for the config file in the same directory as this script.
+    """
+    base_dir = Path(__file__).resolve().parent
+    config_path = base_dir / filename
+
+    if config_path.is_file():
+        return config_path
+
+    raise FileNotFoundError(
+        f"{filename} not found in script directory: {base_dir}"
+    )
 
 def resolve_config_path(config: str | None) -> Path:
     """
@@ -119,6 +119,8 @@ def resolve_config_path(config: str | None) -> Path:
     raise FileNotFoundError(
         "config.json not found. Provide via --config or place it next to the executable."
     )
+
+
 # ---------------------------------------------------------------------------
 # Main command
 # ---------------------------------------------------------------------------

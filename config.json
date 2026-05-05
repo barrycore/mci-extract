@@ -1,7 +1,7 @@
 {
-  "input_dir": "/home/cy63r_4lph4/Desktop",
+  "input_dir": "/home/cy63r_4lph4/Downloads/20260430_093113/TT112/",
   "output_dir": "/home/cy63r_4lph4/Desktop/test_output",
-  "format": "both",
+  "format": "csv",
   "source_format": "ascii",
   "no_blocking": false,
   "verbose": true,
