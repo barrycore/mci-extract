@@ -244,7 +244,11 @@ def _process_element(bit: int, cfg: dict, data: bytes, source_fmt: str) -> tuple
 
 def parse_record(message: bytes, bit_config: dict, source_fmt: str = "ascii") -> dict:
     if len(message) < 20:
-        LOGGER.debug("Record too short (%d bytes), skipping.", len(message))
+        LOGGER.warning(
+            "Record too short to parse (%d bytes, minimum 20). "
+            "Raw bytes: %r — check VBS unpacking or file format.",
+            len(message), message,
+        )
         return {}
 
     msg_len = len(message) - 20
@@ -266,23 +270,35 @@ def parse_record(message: bytes, bit_config: dict, source_fmt: str = "ascii") ->
         if not bitmap[bit]:
             continue
         if bit not in bit_config:
-            LOGGER.warning("No config for bit %d — skipping rest of record.", bit)
+            LOGGER.warning(
+                "MTI=%s — no config for bit %d, cannot parse remainder of record. "
+                "Returning fields parsed so far. Add bit %d to mideu.yml to fix.",
+                out.get("MTI", "?"), bit, bit,
+            )
             break
 
-        values, consumed = _process_element(
-            bit, bit_config[bit], msg_data[ptr:], source_fmt
-        )
+        try:
+            values, consumed = _process_element(
+                bit, bit_config[bit], msg_data[ptr:], source_fmt
+            )
+        except Exception as exc:
+            LOGGER.warning(
+                "MTI=%s — failed to parse bit %d at byte offset %d: %s. "
+                "Raw bytes at offset: %r. "
+                "Returning fields parsed so far. Check mideu.yml config for bit %d.",
+                out.get("MTI", "?"), bit, ptr, exc,
+                msg_data[ptr: ptr + 32], bit,
+            )
+            break
+
         out.update(values)
         ptr += consumed
 
-    # FIX: warn instead of raise so no record is ever lost.
-    # The old parser behaviour was to return whatever was parsed.
     if ptr != len(msg_data):
         LOGGER.warning(
-            "MTI=%s — message data length mismatch: parsed %d bytes, "
-            "actual %d bytes (delta=%+d). Record is included with data "
-            "parsed up to the mismatch point. Check mideu.yml field_length "
-            "config for bits present in this record's bitmap.",
+            "MTI=%s — message data length mismatch after parsing: consumed %d bytes, "
+            "record contains %d bytes (delta=%+d). "
+            "Fields parsed so far are included. Check mideu.yml field_length config.",
             out.get("MTI", "?"), ptr, len(msg_data), ptr - len(msg_data),
         )
 
