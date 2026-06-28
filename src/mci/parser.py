@@ -121,7 +121,7 @@ def _to_python_type(data, python_type: str):
         return int(text)
 
     if python_type == "long":
-        return int(text)   
+        return int(text)
 
     if python_type == "decimal":
         return decimal.Decimal(text)
@@ -275,9 +275,15 @@ def parse_record(message: bytes, bit_config: dict, source_fmt: str = "ascii") ->
         out.update(values)
         ptr += consumed
 
+    # FIX: warn instead of raise so no record is ever lost.
+    # The old parser behaviour was to return whatever was parsed.
     if ptr != len(msg_data):
-        raise Exception(
-            f"Message data not correct length. Parsed len={ptr}, actual message data len={len(msg_data)}"
+        LOGGER.warning(
+            "MTI=%s — message data length mismatch: parsed %d bytes, "
+            "actual %d bytes (delta=%+d). Record is included with data "
+            "parsed up to the mismatch point. Check mideu.yml field_length "
+            "config for bits present in this record's bitmap.",
+            out.get("MTI", "?"), ptr, len(msg_data), ptr - len(msg_data),
         )
 
     return out

@@ -148,7 +148,7 @@ bit_config:
     field_name: Message number
     field_type: FIXED
     field_length: 8
-    field_python_tyoe: int
+    field_python_type: int
   72:
     field_name: Data record
     field_type: LLLVAR
@@ -244,7 +244,7 @@ output_data_elements:
   - DE95
   - DE100
   - DE111
-  - PDS002
+  - PDS0002
   - PDS0003
   - PDS0023
   - PDS0052
